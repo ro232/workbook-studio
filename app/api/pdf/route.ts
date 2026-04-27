@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { renderToString } from "react-dom/server";
+import React from "react";
 import { launchBrowser } from "@/lib/pdf-browser";
 import { getPageDimensions } from "@/lib/page-sizes";
 import { PageRenderer } from "@/components/templates/PageRenderer";
@@ -13,9 +13,12 @@ export const dynamic = "force-dynamic";
  * Body: { workbook: Workbook }
  * Returns: application/pdf binary
  *
- * The route renders all pages inline via ReactDOMServer.renderToString and
- * hands the HTML to puppeteer via setContent. This avoids cross-Lambda state
- * (which would otherwise break the cache-based approach on Vercel).
+ * Renders all pages inline via React.createElement + renderToString and
+ * hands the HTML to puppeteer via setContent. Avoids cross-Lambda state
+ * (which would otherwise break a cache-based approach on Vercel).
+ *
+ * react-dom/server is loaded via dynamic import so Next 15's RSC compiler
+ * doesn't flag the route file as a client component import chain.
  */
 export async function POST(req: NextRequest) {
   let workbook: Workbook;
@@ -30,15 +33,17 @@ export async function POST(req: NextRequest) {
   }
 
   const dim = getPageDimensions(workbook.format);
+  const { renderToString } = await import("react-dom/server");
+
   const pagesHtml = workbook.pages
     .map((page, i) => {
       const svg = renderToString(
-        <PageRenderer
-          page={page}
-          workbook={workbook}
-          pageIndex={i}
-          totalPages={workbook.pages.length}
-        />
+        React.createElement(PageRenderer, {
+          page,
+          workbook,
+          pageIndex: i,
+          totalPages: workbook.pages.length,
+        })
       );
       return `<div class="pdf-page">${svg}</div>`;
     })
