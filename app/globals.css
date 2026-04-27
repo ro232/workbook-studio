@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #fafaf7;
+  --color-surface: #ffffff;
+  --color-ink: #1a1a1a;
+  --color-ink-muted: #6b6b6b;
+  --color-border: #e8e6e0;
+  --color-accent: #2f6b5e;
+  --color-accent-soft: #e6f0ec;
+  --color-warm: #d4a574;
+  --color-warm-soft: #faf3e8;
+
+  --font-sans: "Quicksand", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+  --font-trace: "Patrick Hand", "Quicksand", cursive;
+
+  --radius-card: 16px;
+}
+
+@font-face {
+  font-family: "Quicksand";
+  src: url("https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap");
+  font-display: swap;
+}
+
+html, body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Premium soft scrollbar */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: #d8d6d0; border-radius: 8px; }
+::-webkit-scrollbar-thumb:hover { background: #b8b6b0; }
+
+/* Print rules */
+@media print {
+  @page { size: auto; margin: 0; }
+  html, body { background: white; }
+  .no-print { display: none !important; }
+  .print-page {
+    page-break-after: always;
+    break-after: page;
+    margin: 0;
+    padding: 0;
+  }
+  .print-page:last-child {
+    page-break-after: auto;
+  }
+}
