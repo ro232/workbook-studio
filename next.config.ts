@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   experimental: {
-    optimizePackageImports: ["lucide-react", "framer-motion"],
+    optimizePackageImports: ["lucide-react"],
   },
   // puppeteer (full) is only used in local dev; @sparticuz/chromium needs to be external too
   serverExternalPackages: ["puppeteer", "puppeteer-core", "@sparticuz/chromium"],

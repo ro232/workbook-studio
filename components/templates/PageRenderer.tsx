@@ -55,8 +55,7 @@ export function PageRenderer({ page, workbook, pageIndex, totalPages, showSafeAr
       )}
       {(page.type === "name-tracing" ||
         page.type === "letter-tracing" ||
-        page.type === "number-tracing" ||
-        page.type === "word-tracing") && (
+        page.type === "number-tracing") && (
         <TracingTemplate workbook={workbook} page={page} pageWidth={dim.width} pageHeight={dim.height} />
       )}
       {page.type === "shape-tracing" && (

@@ -88,11 +88,6 @@ export function TracingTemplate({ workbook, page, pageWidth }: Props) {
     title = `The number ${num}`;
     traceText = `${num} ${num} ${num} ${num} ${num}`;
     subtitle = `Trace the number ${num} four times`;
-  } else if (page.type === "word-tracing") {
-    const word = String(page.data.word || "Hello");
-    title = `Trace the word`;
-    traceText = word;
-    subtitle = word;
   }
 
   const repetitions = Number(page.data.repetitions ?? 4);

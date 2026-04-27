@@ -12,7 +12,6 @@ export const ACTIVITIES: ActivityMeta[] = [
   { id: "letter-tracing", label: "Letters A–Z", icon: "Type", description: "Practice uppercase and lowercase letters." },
   { id: "number-tracing", label: "Numbers 0–9", icon: "Hash", description: "Trace and learn numbers 0 through 9." },
   { id: "shape-tracing", label: "Shapes", icon: "Shapes", description: "Trace circles, squares, triangles, stars." },
-  { id: "word-tracing", label: "Words", icon: "Quote", description: "Custom word tracing for vocabulary." },
   { id: "handwriting-3line", label: "Handwriting (3-line)", icon: "AlignLeft", description: "School-style 3-line guides for handwriting practice." },
   { id: "color-letter", label: "Color the Letter", icon: "Palette", description: "Outlined letters for coloring practice." },
   { id: "color-number", label: "Color the Number", icon: "Palette", description: "Outlined numbers for coloring practice." },

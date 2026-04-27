@@ -136,11 +136,10 @@ export const useWizard = create<WizardState>()(
         get().rebuildPages();
       },
       setFormat: (format) => {
-        // Re-apply default margins for this format
+        // Re-apply default margins for this format and rebuild so paper size flows everywhere.
         const margins = PAGE_SIZES[format].defaultMargins;
-        set({ format });
-        const w = get().workbook;
-        set({ workbook: { ...w, format, margins } });
+        set({ format, margins });
+        get().rebuildPages();
       },
       setPhoto: (photo) => {
         set({ child: { ...get().child, photo } });

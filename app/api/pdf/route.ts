@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import React from "react";
-import { launchBrowser } from "@/lib/pdf-browser";
+import { getBrowser } from "@/lib/pdf-browser";
 import { getPageDimensions } from "@/lib/page-sizes";
 import { PageRenderer } from "@/components/templates/PageRenderer";
+import { validateWorkbook } from "@/lib/workbook-validation";
 import type { Workbook } from "@/types/workbook";
+
+const MAX_BODY_BYTES = 5 * 1024 * 1024; // 5 MB
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -21,16 +24,31 @@ export const dynamic = "force-dynamic";
  * doesn't flag the route file as a client component import chain.
  */
 export async function POST(req: NextRequest) {
-  let workbook: Workbook;
+  // Reject oversized bodies before parsing JSON
+  const declaredLen = Number(req.headers.get("content-length") ?? 0);
+  if (Number.isFinite(declaredLen) && declaredLen > MAX_BODY_BYTES) {
+    return NextResponse.json(
+      { error: "Payload too large", limit: MAX_BODY_BYTES },
+      { status: 413 }
+    );
+  }
+
+  let body: unknown;
   try {
-    const body = await req.json();
-    workbook = body.workbook as Workbook;
-    if (!workbook?.id || !workbook?.pages?.length) {
-      return NextResponse.json({ error: "Invalid workbook payload" }, { status: 400 });
-    }
+    body = await req.json();
   } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const validation = validateWorkbook((body as any)?.workbook);
+  if (!validation.ok) {
+    return NextResponse.json(
+      { error: "Invalid workbook payload", details: validation.errors },
+      { status: 400 }
+    );
+  }
+  const workbook: Workbook = validation.workbook;
 
   const dim = getPageDimensions(workbook.format);
   const { renderToString } = await import("react-dom/server");
@@ -87,10 +105,10 @@ ${pagesHtml}
 </body>
 </html>`;
 
-  let browser: Awaited<ReturnType<typeof launchBrowser>> | null = null;
+  let page: Awaited<ReturnType<Awaited<ReturnType<typeof getBrowser>>["newPage"]>> | null = null;
   try {
-    browser = await launchBrowser();
-    const page = await browser.newPage();
+    const browser = await getBrowser();
+    page = await browser.newPage();
 
     await page.setViewport({
       width: Math.ceil(dim.width * 4),
@@ -98,9 +116,10 @@ ${pagesHtml}
       deviceScaleFactor: 1,
     });
 
-    await page.setContent(html, { waitUntil: "networkidle0", timeout: 30000 });
+    // domcontentloaded + explicit fonts.ready is enough — networkidle0 added
+    // 500ms of waiting we don't need with inline SVG content.
+    await page.setContent(html, { waitUntil: "domcontentloaded", timeout: 30000 });
 
-    // Wait for fonts to be ready
     await page
       .evaluate(() => (document as Document).fonts?.ready)
       .catch(() => {});
@@ -130,7 +149,8 @@ ${pagesHtml}
       { status: 500 }
     );
   } finally {
-    if (browser) await browser.close().catch(() => {});
+    // Only close the page — keep the browser alive for the next warm hit.
+    if (page) await page.close().catch(() => {});
   }
 }
 

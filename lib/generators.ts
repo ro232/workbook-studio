@@ -230,7 +230,6 @@ export function newWorkbook(partial: Partial<Workbook>): Workbook {
     format,
     colorMode: "color",
     theme: "minimalist",
-    fontFamily: "trace",
     lineColor: "#9aa3a8",
     lineThickness: 1.0,
     margins: PAGE_SIZES[format].defaultMargins,

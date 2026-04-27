@@ -38,7 +38,7 @@ export const AGE_PRESETS: AgePreset[] = [
     label: "Ages 6–8",
     ageRange: "6-8",
     description: "3-line handwriting, word tracing, connect-the-dots, dictando.",
-    activities: ["handwriting-3line", "word-tracing", "connect-dots", "letter-tracing"],
+    activities: ["handwriting-3line", "connect-dots", "letter-tracing"],
     paperStyle: "handwriting",
     theme: "minimalist",
     intensity: "challenging",

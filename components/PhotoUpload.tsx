@@ -1,10 +1,24 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
-import Cropper, { Area } from "react-easy-crop";
+import dynamic from "next/dynamic";
+import type { Area } from "react-easy-crop";
 import { Upload, X, Camera, RotateCw } from "lucide-react";
 import type { ChildPhoto, PhotoCrop } from "@/types/workbook";
 import { cn } from "@/lib/utils";
+
+// Lazy-load Cropper — only fetched when user opens the crop modal.
+// Cast to a permissive component type since react-easy-crop's many
+// optional defaults aren't reflected in CropperProps as required-with-defaults.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const Cropper = dynamic<any>(() => import("react-easy-crop"), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full aspect-square bg-[var(--color-bg)] flex items-center justify-center text-xs text-[var(--color-ink-muted)]">
+      Loading editor…
+    </div>
+  ),
+});
 
 interface Props {
   photo?: ChildPhoto;
@@ -85,7 +99,7 @@ export function PhotoUpload({ photo, onChange }: Props) {
           className="w-full flex flex-col items-center justify-center gap-2 p-6 rounded-xl border-2 border-dashed border-[var(--color-border)] bg-white hover:border-[var(--color-accent)] hover:bg-[var(--color-accent-soft)]/40 transition"
         >
           <div className="w-12 h-12 rounded-full bg-[var(--color-accent-soft)] text-[var(--color-accent)] flex items-center justify-center">
-            <Camera size={20} />
+            <Camera size={20} aria-hidden="true" />
           </div>
           <div className="text-sm font-medium">Add a photo</div>
           <div className="text-xs text-[var(--color-ink-muted)]">PNG, JPG · cropped to fit the cover</div>
@@ -111,7 +125,7 @@ export function PhotoUpload({ photo, onChange }: Props) {
             onClick={onReplace}
             className="px-3 py-2 text-xs font-medium rounded-full border border-[var(--color-border)] hover:bg-[var(--color-bg)] flex items-center gap-1.5"
           >
-            <RotateCw size={12} /> Change
+            <RotateCw size={12} aria-hidden="true" /> Change
           </button>
           <button
             type="button"
@@ -119,7 +133,7 @@ export function PhotoUpload({ photo, onChange }: Props) {
             className="px-2 py-2 text-xs rounded-full text-[var(--color-ink-muted)] hover:bg-[var(--color-bg)]"
             aria-label="Remove photo"
           >
-            <X size={14} />
+            <X size={14} aria-hidden="true" />
           </button>
         </div>
       )}
@@ -186,7 +200,7 @@ export function PhotoUpload({ photo, onChange }: Props) {
                 onClick={onApply}
                 className="px-4 py-2 text-sm font-medium rounded-full bg-[var(--color-accent)] text-white hover:bg-[#265648] flex items-center gap-1.5"
               >
-                <Upload size={14} /> Apply
+                <Upload size={14} aria-hidden="true" /> Apply
               </button>
             </div>
           </div>

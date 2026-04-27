@@ -53,7 +53,7 @@ export function Wizard() {
           disabled={stepIdx === 0}
           className="flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium text-[var(--color-ink-muted)] hover:bg-[var(--color-bg)] disabled:opacity-30 disabled:cursor-not-allowed transition"
         >
-          <ChevronLeft size={16} /> Back
+          <ChevronLeft size={16} aria-hidden="true" /> Back
         </button>
 
         <span className="text-xs text-[var(--color-ink-muted)]">
@@ -65,7 +65,7 @@ export function Wizard() {
             onClick={s.next}
             className="flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium bg-[var(--color-accent)] text-white hover:bg-[#265648] transition shadow-sm"
           >
-            Continue <ChevronRight size={16} />
+            Continue <ChevronRight size={16} aria-hidden="true" />
           </button>
         ) : (
           <ExportButtons />
@@ -108,6 +108,7 @@ function StepType() {
           <button
             key={p.id}
             onClick={() => setProductType(p.id as ProductType)}
+            aria-pressed={productType === p.id}
             className={cn(
               "text-left p-4 rounded-2xl border transition group",
               productType === p.id
@@ -119,7 +120,7 @@ function StepType() {
               <div className="text-2xl">{p.emoji}</div>
               {productType === p.id && (
                 <div className="w-5 h-5 rounded-full bg-[var(--color-accent)] text-white flex items-center justify-center">
-                  <Check size={12} />
+                  <Check size={12} aria-hidden="true" />
                 </div>
               )}
             </div>
@@ -221,6 +222,7 @@ function StepFormat() {
           <button
             key={key}
             onClick={() => setFormat(key as PageFormat)}
+            aria-pressed={format === key}
             className={cn(
               "p-4 rounded-2xl border transition flex flex-col items-center gap-3",
               format === key
@@ -256,6 +258,7 @@ function StepPaper() {
           <button
             key={p.id}
             onClick={() => setPaperStyle(p.id as PaperStyle)}
+            aria-pressed={paperStyle === p.id}
             className={cn(
               "p-3 rounded-2xl border text-left transition",
               paperStyle === p.id
@@ -344,6 +347,7 @@ function StepActivities() {
             <button
               key={a.id}
               onClick={() => toggleActivity(a.id)}
+              aria-pressed={on}
               className={cn(
                 "p-3 rounded-xl border text-left transition flex items-start gap-3",
                 on
@@ -357,7 +361,7 @@ function StepActivities() {
                   on ? "border-[var(--color-accent)] bg-[var(--color-accent)] text-white" : "border-[var(--color-border)]"
                 )}
               >
-                {on && <Check size={12} />}
+                {on && <Check size={12} aria-hidden="true" />}
               </div>
               <div>
                 <div className="font-medium text-sm">{a.label}</div>
@@ -396,6 +400,7 @@ function StepCustomize() {
               <button
                 key={m}
                 onClick={() => setColorMode(m)}
+                aria-pressed={colorMode === m}
                 className={cn(
                   "px-4 py-3 rounded-xl border text-sm font-medium transition",
                   colorMode === m
@@ -416,6 +421,7 @@ function StepCustomize() {
               <button
                 key={s}
                 onClick={() => onTracingStyle(s)}
+                aria-pressed={tracingStyle === s}
                 className={cn(
                   "p-3 rounded-xl border transition flex flex-col items-center gap-1.5",
                   tracingStyle === s
@@ -458,6 +464,7 @@ function StepCustomize() {
               <button
                 key={p}
                 onClick={() => onMarginPreset(p)}
+                aria-pressed={marginPreset === p}
                 className={cn(
                   "p-3 rounded-xl border transition flex flex-col items-center gap-1.5",
                   marginPreset === p
@@ -479,6 +486,7 @@ function StepCustomize() {
               <button
                 key={t}
                 onClick={() => setTheme(t)}
+                aria-pressed={theme === t}
                 className={cn(
                   "px-3 py-3 rounded-xl border text-sm capitalize transition",
                   theme === t
@@ -543,7 +551,7 @@ function StepPreview() {
       subtitle={`${workbook.pages.length} pages ready — ${workbook.format}, ${workbook.colorMode === "bw" ? "B&W" : "color"}.`}
     >
       <div className="rounded-2xl bg-[var(--color-accent-soft)] border border-[var(--color-accent)]/20 p-5 flex items-start gap-3">
-        <Sparkles className="text-[var(--color-accent)] shrink-0 mt-0.5" size={20} />
+        <Sparkles className="text-[var(--color-accent)] shrink-0 mt-0.5" size={20} aria-hidden="true" />
         <div className="text-sm leading-relaxed">
           Your workbook is ready. Use the buttons below to <strong>print</strong> directly or open the print dialog and choose <strong>"Save as PDF"</strong>. The preview on the right matches the final output exactly.
         </div>
@@ -603,14 +611,14 @@ function ExportButtons() {
           disabled={pdfBusy}
           className="flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium bg-white border border-[var(--color-border)] hover:bg-[var(--color-bg)] transition disabled:opacity-60"
         >
-          {pdfBusy ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
+          {pdfBusy ? <Loader2 size={16} className="animate-spin" aria-hidden="true" /> : <Download size={16} aria-hidden="true" />}
           {pdfBusy ? "Generating…" : "PDF"}
         </button>
         <button
           onClick={onPrint}
           className="flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium bg-[var(--color-accent)] text-white hover:bg-[#265648] transition shadow-sm"
         >
-          <Printer size={16} /> Print
+          <Printer size={16} aria-hidden="true" /> Print
         </button>
       </div>
       {error && <div className="text-xs text-red-600 max-w-xs text-right">{error}</div>}

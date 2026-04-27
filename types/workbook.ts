@@ -17,7 +17,6 @@ export type ActivityType =
   | "letter-tracing"
   | "number-tracing"
   | "shape-tracing"
-  | "word-tracing"
   | "handwriting-3line"
   | "coloring"
   | "color-letter"
@@ -28,8 +27,6 @@ export type ActivityType =
   | "free-write";
 
 export type Theme = "minimalist" | "animals" | "space" | "princess";
-
-export type FontFamily = "trace" | "sans" | "display";
 
 /** How tracing letters are visually rendered for the child to follow. */
 export type TracingStyle = "dotted" | "dashed" | "outline" | "arrow";
@@ -81,7 +78,6 @@ export interface Workbook {
   format: PageFormat;
   colorMode: ColorMode;
   theme: Theme;
-  fontFamily: FontFamily;
   lineColor: string;
   /** Multiplier 0.5–2.0 applied to baseline stroke widths in templates. */
   lineThickness: number;
@@ -107,9 +103,3 @@ export type ProductType =
   | "handwriting-ro"
   | "custom-book";
 
-export interface BatchOptions {
-  preset: ProductType;
-  pageCount?: number;
-  includeCover: boolean;
-  includeReinforcement: boolean;
-}

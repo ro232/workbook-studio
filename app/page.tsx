@@ -33,7 +33,7 @@ export default function Home() {
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--color-accent-soft)] text-[var(--color-accent)] text-xs font-medium tracking-wide">
-              <Sparkles size={12} /> PERSONALIZED · PRINTABLE · PREMIUM
+              <Sparkles size={12} aria-hidden="true" /> PERSONALIZED · PRINTABLE · PREMIUM
             </div>
             <h1 className="mt-5 text-5xl sm:text-6xl lg:text-7xl font-[Fraunces,serif] font-semibold leading-[1.05] tracking-tight">
               Beautiful workbooks,
@@ -48,7 +48,7 @@ export default function Home() {
                 href="/create"
                 className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full bg-[var(--color-accent)] text-white font-medium hover:bg-[#265648] transition shadow-sm"
               >
-                Create a workbook <ArrowRight size={18} />
+                Create a workbook <ArrowRight size={18} aria-hidden="true" />
               </Link>
               <a
                 href="#how"
@@ -58,8 +58,8 @@ export default function Home() {
               </a>
             </div>
             <div className="mt-8 flex items-center gap-6 text-sm text-[var(--color-ink-muted)]">
-              <div className="flex items-center gap-2"><Heart size={14} className="text-[var(--color-warm)]" /> No login needed</div>
-              <div className="flex items-center gap-2"><FileText size={14} className="text-[var(--color-accent)]" /> Print or PDF</div>
+              <div className="flex items-center gap-2"><Heart size={14} className="text-[var(--color-warm)]" aria-hidden="true" /> No login needed</div>
+              <div className="flex items-center gap-2"><FileText size={14} className="text-[var(--color-accent)]" aria-hidden="true" /> Print or PDF</div>
             </div>
           </div>
 
@@ -78,32 +78,32 @@ export default function Home() {
           </p>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-10">
             <Feature
-              icon={<Layers size={20} />}
+              icon={<Layers size={20} aria-hidden="true" />}
               title="Real workbooks, not worksheets"
               body="Generate complete books with covers, page numbers, and a coherent design — like something you'd buy in a bookstore."
             />
             <Feature
-              icon={<Sparkles size={20} />}
+              icon={<Sparkles size={20} aria-hidden="true" />}
               title="Personalized to your child"
               body="Their name on the cover, their name on the tracing pages. Age-aware difficulty. Editor-friendly typography."
             />
             <Feature
-              icon={<FileText size={20} />}
+              icon={<FileText size={20} aria-hidden="true" />}
               title="A4, A5, A2 or US Letter"
               body="Mm-precise rendering means what you see is what prints. No surprises, no fuzzy lines."
             />
             <Feature
-              icon={<Printer size={20} />}
+              icon={<Printer size={20} aria-hidden="true" />}
               title="Print-ready out of the box"
               body="Save as PDF or send straight to your printer. Both routes use the same template, so output is identical."
             />
             <Feature
-              icon={<Heart size={20} />}
+              icon={<Heart size={20} aria-hidden="true" />}
               title="Calm, premium aesthetic"
               body="Inspired by good editorial design — not chaotic primary colors. Your child deserves a beautiful workbook."
             />
             <Feature
-              icon={<Layers size={20} />}
+              icon={<Layers size={20} aria-hidden="true" />}
               title="Batch generation"
               body="Full alphabet, numbers, name books, custom 10/20/30/50-page collections — all in a few clicks."
             />
@@ -126,7 +126,7 @@ export default function Home() {
             href="/create"
             className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full bg-[var(--color-accent)] text-white font-medium hover:bg-[#265648] transition shadow-sm"
           >
-            Start your first workbook <ArrowRight size={18} />
+            Start your first workbook <ArrowRight size={18} aria-hidden="true" />
           </Link>
         </div>
       </section>

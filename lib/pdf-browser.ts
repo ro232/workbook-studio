@@ -6,14 +6,44 @@
  *
  * Selection: WORKBOOK_PDF_ENV=serverless forces serverless mode.
  *            Otherwise we detect Vercel/AWS Lambda via env vars.
+ *
+ * The browser instance is cached on `globalThis` so warm Lambda invocations
+ * skip the 6–10s Chromium boot. Cross-Lambda this doesn't help (each Lambda
+ * has its own process), but within one Lambda's warm window it cuts PDF
+ * latency dramatically.
  */
 
 import type { Browser } from "puppeteer-core";
+
+declare global {
+  // eslint-disable-next-line no-var
+  var __WORKBOOK_BROWSER: Browser | undefined;
+}
 
 const isServerless =
   process.env.WORKBOOK_PDF_ENV === "serverless" ||
   Boolean(process.env.AWS_LAMBDA_FUNCTION_VERSION) ||
   Boolean(process.env.VERCEL);
+
+export async function getBrowser(): Promise<Browser> {
+  // Reuse warm browser if it's still connected
+  const cached = globalThis.__WORKBOOK_BROWSER;
+  if (cached) {
+    try {
+      // puppeteer-core exposes `connected` (newer) or `isConnected()` (older)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const c = cached as any;
+      const alive = typeof c.connected === "boolean" ? c.connected : c.isConnected?.() ?? true;
+      if (alive) return cached;
+    } catch {
+      // fall through and re-launch
+    }
+    globalThis.__WORKBOOK_BROWSER = undefined;
+  }
+  const browser = await launchBrowser();
+  globalThis.__WORKBOOK_BROWSER = browser;
+  return browser;
+}
 
 export async function launchBrowser(): Promise<Browser> {
   if (isServerless) {
