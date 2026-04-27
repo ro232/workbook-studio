@@ -17,13 +17,18 @@ const isServerless =
 
 export async function launchBrowser(): Promise<Browser> {
   if (isServerless) {
-    const [{ default: chromium }, { default: pcore }] = await Promise.all([
+    const [chromiumMod, pcoreMod] = await Promise.all([
       import("@sparticuz/chromium"),
       import("puppeteer-core"),
     ]);
+    // @sparticuz/chromium typings have shifted across versions; cast to any to keep the
+    // launcher resilient to minor shape changes.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const chromium: any = (chromiumMod as any).default ?? chromiumMod;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const pcore: any = (pcoreMod as any).default ?? pcoreMod;
     return pcore.launch({
       args: chromium.args,
-      defaultViewport: chromium.defaultViewport,
       executablePath: await chromium.executablePath(),
       headless: true,
     }) as unknown as Browser;
