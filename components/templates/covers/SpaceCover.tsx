@@ -78,7 +78,7 @@ export function SpaceCover({ workbook, pageWidth, pageHeight }: Props) {
         {title}
       </text>
 
-      {/* Photo */}
+      {/* Photo or astronaut helmet placeholder */}
       {child.photo ? (
         <PhotoFrame
           photo={child.photo}
@@ -89,15 +89,7 @@ export function SpaceCover({ workbook, pageWidth, pageHeight }: Props) {
           borderWidth={1.5}
         />
       ) : (
-        <text
-          x={W / 2}
-          y={H * 0.6}
-          textAnchor="middle"
-          fontSize={W * 0.16}
-          opacity={0.9}
-        >
-          🚀
-        </text>
+        <AstronautHelmet cx={W / 2} cy={H * 0.6} size={Math.min(W * 0.36, 70)} accent={accent} bg={isBw ? "#fff" : "#1a2240"} ink={textPrimary} />
       )}
 
       {/* Astronaut name plate */}
@@ -177,6 +169,27 @@ function SparkleStar({ cx, cy, size, fill }: { cx: number; cy: number; size: num
         d={`M 0 -${size} L ${size * 0.25} -${size * 0.25} L ${size} 0 L ${size * 0.25} ${size * 0.25} L 0 ${size} L -${size * 0.25} ${size * 0.25} L -${size} 0 L -${size * 0.25} -${size * 0.25} Z`}
         fill={fill}
       />
+    </g>
+  );
+}
+
+function AstronautHelmet({ cx, cy, size, accent, bg, ink }: { cx: number; cy: number; size: number; accent: string; bg: string; ink: string }) {
+  const r = size / 2;
+  return (
+    <g transform={`translate(${cx}, ${cy})`}>
+      {/* Outer ring */}
+      <circle cx={0} cy={0} r={r} fill="none" stroke={accent} strokeWidth={1.4} />
+      {/* Visor outer */}
+      <ellipse cx={0} cy={r * 0.05} rx={r * 0.78} ry={r * 0.65} fill={bg} stroke={accent} strokeWidth={0.8} />
+      {/* Visor inner reflection */}
+      <ellipse cx={-r * 0.18} cy={-r * 0.18} rx={r * 0.18} ry={r * 0.12} fill={ink} opacity={0.25} />
+      <ellipse cx={r * 0.32} cy={-r * 0.05} rx={r * 0.07} ry={r * 0.05} fill={ink} opacity={0.18} />
+      {/* Side antenna nubs */}
+      <circle cx={-r * 0.92} cy={0} r={r * 0.07} fill={accent} />
+      <circle cx={r * 0.92} cy={0} r={r * 0.07} fill={accent} />
+      {/* Top antenna */}
+      <line x1={0} y1={-r} x2={0} y2={-r * 1.18} stroke={accent} strokeWidth={0.8} />
+      <circle cx={0} cy={-r * 1.22} r={r * 0.06} fill={accent} />
     </g>
   );
 }

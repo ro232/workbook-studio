@@ -6,7 +6,7 @@ import { PRODUCT_TYPES, ACTIVITIES } from "@/lib/activities";
 import { PAPER_STYLES } from "@/lib/paper-styles";
 import { PAGE_SIZES } from "@/lib/page-sizes";
 import { AGE_PRESETS } from "@/lib/age-presets";
-import type { PageFormat, PaperStyle, ProductType, ColorMode, Theme } from "@/types/workbook";
+import type { PageFormat, PaperStyle, ProductType, ColorMode, Theme, TracingStyle, MarginPreset } from "@/types/workbook";
 import { cn } from "@/lib/utils";
 import { Check, ChevronLeft, ChevronRight, Printer, Download, Sparkles, Loader2 } from "lucide-react";
 import { PhotoUpload } from "./PhotoUpload";
@@ -372,10 +372,23 @@ function StepActivities() {
 }
 
 function StepCustomize() {
-  const { colorMode, setColorMode, theme, setTheme } = useWizard();
+  const {
+    colorMode, setColorMode,
+    theme, setTheme,
+    tracingStyle, setTracingStyle,
+    lineThickness, setLineThickness,
+    marginPreset, setMarginPreset,
+    rebuildPages,
+  } = useWizard();
+
+  // Apply changes that affect rendering immediately
+  const onTracingStyle = (s: TracingStyle) => { setTracingStyle(s); rebuildPages(); };
+  const onLineThickness = (n: number) => { setLineThickness(n); rebuildPages(); };
+  const onMarginPreset = (p: MarginPreset) => { setMarginPreset(p); rebuildPages(); };
+
   return (
     <StepShell eyebrow="Step 6" title="Design" subtitle="Final touches before you preview and print.">
-      <div className="space-y-5">
+      <div className="space-y-6">
         <div>
           <Label>Color mode</Label>
           <div className="grid grid-cols-2 gap-2 mt-2">
@@ -391,6 +404,69 @@ function StepCustomize() {
                 )}
               >
                 {m === "color" ? "Premium color" : "Black & white (saves ink)"}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <Label>Tracing letter style</Label>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2">
+            {(["dotted", "dashed", "outline", "arrow"] as TracingStyle[]).map((s) => (
+              <button
+                key={s}
+                onClick={() => onTracingStyle(s)}
+                className={cn(
+                  "p-3 rounded-xl border transition flex flex-col items-center gap-1.5",
+                  tracingStyle === s
+                    ? "border-[var(--color-accent)] bg-[var(--color-accent-soft)]"
+                    : "border-[var(--color-border)] bg-white hover:border-[var(--color-accent)]/40"
+                )}
+              >
+                <TracingStyleSwatch style={s} />
+                <div className="text-xs font-medium capitalize">{s}</div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <div className="flex items-center justify-between">
+            <Label>Line thickness</Label>
+            <span className="text-xs text-[var(--color-ink-muted)] tabular-nums">{lineThickness.toFixed(2)}×</span>
+          </div>
+          <input
+            type="range"
+            min={0.5}
+            max={2.0}
+            step={0.05}
+            value={lineThickness}
+            onChange={(e) => onLineThickness(Number(e.target.value))}
+            className="w-full mt-2 accent-[var(--color-accent)]"
+          />
+          <div className="flex justify-between text-[10px] text-[var(--color-ink-muted)] mt-0.5 uppercase tracking-widest">
+            <span>Fine</span>
+            <span>Standard</span>
+            <span>Bold</span>
+          </div>
+        </div>
+
+        <div>
+          <Label>Page margins</Label>
+          <div className="grid grid-cols-3 gap-2 mt-2">
+            {(["narrow", "normal", "wide"] as MarginPreset[]).map((p) => (
+              <button
+                key={p}
+                onClick={() => onMarginPreset(p)}
+                className={cn(
+                  "p-3 rounded-xl border transition flex flex-col items-center gap-1.5",
+                  marginPreset === p
+                    ? "border-[var(--color-accent)] bg-[var(--color-accent-soft)]"
+                    : "border-[var(--color-border)] bg-white hover:border-[var(--color-accent)]/40"
+                )}
+              >
+                <MarginSwatch preset={p} />
+                <div className="text-xs font-medium capitalize">{p}</div>
               </button>
             ))}
           </div>
@@ -417,6 +493,44 @@ function StepCustomize() {
         </div>
       </div>
     </StepShell>
+  );
+}
+
+function TracingStyleSwatch({ style }: { style: TracingStyle }) {
+  const props =
+    style === "dotted"
+      ? { strokeDasharray: "0.4 4", strokeLinecap: "round" as const }
+      : style === "dashed"
+      ? { strokeDasharray: "5 4", strokeLinecap: "round" as const }
+      : style === "outline"
+      ? {}
+      : { strokeDasharray: "8 4", strokeLinecap: "round" as const };
+  return (
+    <svg viewBox="0 0 56 28" className="w-full h-7">
+      <text
+        x={28}
+        y={22}
+        textAnchor="middle"
+        fontFamily="Patrick Hand, cursive"
+        fontSize={22}
+        fill="none"
+        stroke="#2f6b5e"
+        strokeWidth={1.6}
+        {...props}
+      >
+        Aa
+      </text>
+    </svg>
+  );
+}
+
+function MarginSwatch({ preset }: { preset: MarginPreset }) {
+  const inset = preset === "narrow" ? 3 : preset === "wide" ? 9 : 6;
+  return (
+    <svg viewBox="0 0 40 56" className="w-8 h-11">
+      <rect x={1} y={1} width={38} height={54} fill="white" stroke="#cfd6d2" strokeWidth={0.6} rx={2} />
+      <rect x={inset} y={inset} width={40 - 2 * inset} height={56 - 2 * inset} fill="none" stroke="#2f6b5e" strokeWidth={0.5} strokeDasharray="2 1.5" rx={1} />
+    </svg>
   );
 }
 

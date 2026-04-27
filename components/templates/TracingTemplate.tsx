@@ -1,4 +1,4 @@
-import type { Workbook, PageConfig } from "@/types/workbook";
+import type { Workbook, PageConfig, TracingStyle } from "@/types/workbook";
 
 interface Props {
   workbook: Workbook;
@@ -7,8 +7,62 @@ interface Props {
   pageHeight: number;
 }
 
-export function TracingTemplate({ workbook, page, pageWidth, pageHeight }: Props) {
-  const { margins, colorMode } = workbook;
+/**
+ * Stroke calibration per tracing style.
+ * Returns the props to apply to a tracing-letter <text> element.
+ */
+function tracingStyleProps(
+  style: TracingStyle,
+  thickness: number,
+  color: string
+): Partial<{ stroke: string; fill: string; strokeWidth: number; strokeDasharray: string; strokeLinecap: "round" | "butt"; strokeLinejoin: "round" | "miter" }> {
+  // thickness multiplier (1.0 = baseline)
+  const t = Math.max(0.4, Math.min(2.0, thickness));
+  switch (style) {
+    case "dotted":
+      // Round dots — small dash, equal gap, rounded caps so dashes look like circles
+      return {
+        fill: "none",
+        stroke: color,
+        strokeWidth: 0.6 * t,
+        strokeDasharray: "0.1 1.6",
+        strokeLinecap: "round",
+        strokeLinejoin: "round",
+      };
+    case "dashed":
+      // Longer dashes — classic tracing-school look
+      return {
+        fill: "none",
+        stroke: color,
+        strokeWidth: 0.5 * t,
+        strokeDasharray: "1.6 1.4",
+        strokeLinecap: "round",
+        strokeLinejoin: "round",
+      };
+    case "outline":
+      // Hollow letter — child fills it in with crayons or pen
+      return {
+        fill: "none",
+        stroke: color,
+        strokeWidth: 0.7 * t,
+        strokeLinecap: "round",
+        strokeLinejoin: "round",
+      };
+    case "arrow":
+      // Same as dashed but with directional emphasis (rendered separately by the row)
+      return {
+        fill: "none",
+        stroke: color,
+        strokeWidth: 0.5 * t,
+        strokeDasharray: "2.2 1.6",
+        strokeLinecap: "round",
+        strokeLinejoin: "round",
+      };
+  }
+}
+
+export function TracingTemplate({ workbook, page, pageWidth }: Props) {
+  const { margins, colorMode, tracingStyle, lineThickness } = workbook;
   const cw = pageWidth - margins.left - margins.right;
 
   const traceInk = colorMode === "bw" ? "#888" : "#9bb5ad";
@@ -42,9 +96,9 @@ export function TracingTemplate({ workbook, page, pageWidth, pageHeight }: Props
   }
 
   const repetitions = Number(page.data.repetitions ?? 4);
-
-  // Big example glyph at top
   const exampleY = margins.top + 30;
+  const traceProps = tracingStyleProps(tracingStyle ?? "dotted", lineThickness ?? 1, traceInk);
+  const showArrow = (tracingStyle ?? "dotted") === "arrow";
 
   return (
     <g>
@@ -90,7 +144,7 @@ export function TracingTemplate({ workbook, page, pageWidth, pageHeight }: Props
         {subtitle}
       </text>
 
-      {/* Big example - solid for reference */}
+      {/* Big example glyph (solid) for letter/number */}
       {(page.type === "letter-tracing" || page.type === "number-tracing") && (
         <text
           x={pageWidth / 2}
@@ -105,62 +159,53 @@ export function TracingTemplate({ workbook, page, pageWidth, pageHeight }: Props
         </text>
       )}
 
-      {/* Tracing rows: 3-line guides + dashed letter */}
+      {/* Tracing rows: 3-line guides + dashed/dotted/outline letter */}
       {Array.from({ length: repetitions }, (_, i) => {
         const rowY = (page.type === "letter-tracing" || page.type === "number-tracing")
           ? exampleY + 50 + i * 28
           : margins.top + 35 + i * 28;
         return (
           <g key={i}>
-            {/* Top guide */}
-            <line
-              x1={margins.left}
-              y1={rowY}
-              x2={margins.left + cw}
-              y2={rowY}
-              stroke="#d8d8d8"
-              strokeWidth={0.18}
-            />
-            {/* Mid guide (dashed) */}
+            <line x1={margins.left} y1={rowY} x2={margins.left + cw} y2={rowY} stroke="#d8d8d8" strokeWidth={0.18 * lineThickness} />
             <line
               x1={margins.left}
               y1={rowY + 8}
               x2={margins.left + cw}
               y2={rowY + 8}
               stroke="#bcbcbc"
-              strokeWidth={0.18}
+              strokeWidth={0.18 * lineThickness}
               strokeDasharray="1.2,1.2"
             />
-            {/* Baseline */}
-            <line
-              x1={margins.left}
-              y1={rowY + 16}
-              x2={margins.left + cw}
-              y2={rowY + 16}
-              stroke="#888"
-              strokeWidth={0.3}
-            />
-            {/* Tracing letters - dashed outline style */}
+            <line x1={margins.left} y1={rowY + 16} x2={margins.left + cw} y2={rowY + 16} stroke="#888" strokeWidth={0.3 * lineThickness} />
             <text
               x={margins.left + 4}
               y={rowY + 15}
               fontFamily="Patrick Hand, cursive"
               fontSize={16}
-              fill="none"
-              stroke={traceInk}
-              strokeWidth={0.4}
-              strokeDasharray="1.5,1.2"
               letterSpacing={3}
+              {...traceProps}
             >
               {traceText}
             </text>
             {/* Start dot */}
-            <circle
-              cx={margins.left + 1.5}
-              cy={rowY + 16}
-              r={0.8}
-              fill={accent}
-            />
+            <circle cx={margins.left + 1.5} cy={rowY + 16} r={0.9} fill={accent} />
+            {/* Optional directional arrow above the row when in arrow mode */}
+            {showArrow && (
+              <g>
+                <line
+                  x1={margins.left + 4}
+                  y1={rowY - 2.5}
+                  x2={margins.left + 14}
+                  y2={rowY - 2.5}
+                  stroke={accent}
+                  strokeWidth={0.4}
+                />
+                <polygon
+                  points={`${margins.left + 14},${rowY - 2.5} ${margins.left + 12},${rowY - 3.7} ${margins.left + 12},${rowY - 1.3}`}
+                  fill={accent}
+                />
+              </g>
+            )}
           </g>
         );
       })}

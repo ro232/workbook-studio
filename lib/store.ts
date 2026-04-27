@@ -10,6 +10,9 @@ import type {
   Theme,
   ProductType,
   ChildProfile,
+  TracingStyle,
+  MarginPreset,
+  Margins,
 } from "@/types/workbook";
 import { newWorkbook, buildPages } from "./generators";
 import { PAGE_SIZES } from "./page-sizes";
@@ -45,6 +48,10 @@ interface WizardState {
   theme: Theme;
   title: string;
   lineColor: string;
+  lineThickness: number;
+  marginPreset: MarginPreset;
+  margins: Margins;
+  tracingStyle: TracingStyle;
   workbook: Workbook;
 
   setStep: (s: WizardStep) => void;
@@ -59,6 +66,10 @@ interface WizardState {
   setTheme: (t: Theme) => void;
   setTitle: (t: string) => void;
   setLineColor: (c: string) => void;
+  setLineThickness: (n: number) => void;
+  setMarginPreset: (p: MarginPreset) => void;
+  setMargins: (m: Margins) => void;
+  setTracingStyle: (s: TracingStyle) => void;
   setPhoto: (p: ChildPhoto | undefined) => void;
   applyAgePreset: (presetId: string) => void;
   rebuildPages: () => void;
@@ -77,6 +88,10 @@ const DEFAULT: Pick<
   | "theme"
   | "title"
   | "lineColor"
+  | "lineThickness"
+  | "marginPreset"
+  | "margins"
+  | "tracingStyle"
 > = {
   step: "type",
   productType: "name-book",
@@ -88,6 +103,10 @@ const DEFAULT: Pick<
   theme: "minimalist",
   title: "My First Tracing Workbook",
   lineColor: "#9aa3a8",
+  lineThickness: 1.0,
+  marginPreset: "normal",
+  margins: PAGE_SIZES.A4.defaultMargins,
+  tracingStyle: "dotted",
 };
 
 export const useWizard = create<WizardState>()(
@@ -151,10 +170,26 @@ export const useWizard = create<WizardState>()(
         set({ activities: next });
         get().rebuildPages();
       },
-      setColorMode: (colorMode) => set({ colorMode }),
-      setTheme: (theme) => set({ theme }),
-      setTitle: (title) => set({ title }),
-      setLineColor: (lineColor) => set({ lineColor }),
+      setColorMode: (colorMode) => { set({ colorMode }); get().rebuildPages(); },
+      setTheme: (theme) => { set({ theme }); get().rebuildPages(); },
+      setTitle: (title) => { set({ title }); get().rebuildPages(); },
+      setLineColor: (lineColor) => { set({ lineColor }); get().rebuildPages(); },
+      setLineThickness: (lineThickness) => { set({ lineThickness }); get().rebuildPages(); },
+      setMarginPreset: (marginPreset) => {
+        const s = get();
+        const base = PAGE_SIZES[s.format].defaultMargins;
+        const margins =
+          marginPreset === "narrow"
+            ? scaleMargins(base, 0.65)
+            : marginPreset === "wide"
+            ? scaleMargins(base, 1.45)
+            : marginPreset === "normal"
+            ? base
+            : s.margins;
+        set({ marginPreset, margins });
+      },
+      setMargins: (margins) => { set({ margins, marginPreset: "custom" }); get().rebuildPages(); },
+      setTracingStyle: (tracingStyle) => { set({ tracingStyle }); get().rebuildPages(); },
       rebuildPages: () => {
         const s = get();
         const pages = buildPages({
@@ -163,7 +198,16 @@ export const useWizard = create<WizardState>()(
           paperStyle: s.paperStyle,
           selectedActivities: s.activities,
         });
+        const baseMargins =
+          s.marginPreset === "custom" ? s.margins : PAGE_SIZES[s.format].defaultMargins;
+        const margins =
+          s.marginPreset === "narrow"
+            ? scaleMargins(baseMargins, 0.65)
+            : s.marginPreset === "wide"
+            ? scaleMargins(baseMargins, 1.45)
+            : baseMargins;
         set({
+          margins,
           workbook: {
             ...s.workbook,
             title: s.title,
@@ -172,7 +216,10 @@ export const useWizard = create<WizardState>()(
             colorMode: s.colorMode,
             theme: s.theme,
             lineColor: s.lineColor,
-            margins: PAGE_SIZES[s.format].defaultMargins,
+            lineThickness: s.lineThickness,
+            tracingStyle: s.tracingStyle,
+            marginPreset: s.marginPreset,
+            margins,
             pages,
             meta: { ...s.workbook.meta, updatedAt: new Date().toISOString() },
           },
@@ -196,7 +243,20 @@ export const useWizard = create<WizardState>()(
         theme: s.theme,
         title: s.title,
         lineColor: s.lineColor,
+        lineThickness: s.lineThickness,
+        marginPreset: s.marginPreset,
+        margins: s.margins,
+        tracingStyle: s.tracingStyle,
       }),
     }
   )
 );
+
+function scaleMargins(m: Margins, factor: number): Margins {
+  return {
+    top: Math.round(m.top * factor * 10) / 10,
+    right: Math.round(m.right * factor * 10) / 10,
+    bottom: Math.round(m.bottom * factor * 10) / 10,
+    left: Math.round(m.left * factor * 10) / 10,
+  };
+}

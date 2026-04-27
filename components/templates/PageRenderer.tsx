@@ -45,6 +45,7 @@ export function PageRenderer({ page, workbook, pageIndex, totalPages, showSafeAr
             height={dim.height}
             margins={workbook.margins}
             colorMode={workbook.colorMode}
+            thickness={workbook.lineThickness ?? 1}
           />
         )}
 

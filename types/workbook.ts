@@ -31,6 +31,11 @@ export type Theme = "minimalist" | "animals" | "space" | "princess";
 
 export type FontFamily = "trace" | "sans" | "display";
 
+/** How tracing letters are visually rendered for the child to follow. */
+export type TracingStyle = "dotted" | "dashed" | "outline" | "arrow";
+
+export type MarginPreset = "narrow" | "normal" | "wide" | "custom";
+
 export interface PhotoCrop {
   /** All values in % of the original image, 0-100 */
   x: number;
@@ -78,8 +83,12 @@ export interface Workbook {
   theme: Theme;
   fontFamily: FontFamily;
   lineColor: string;
+  /** Multiplier 0.5–2.0 applied to baseline stroke widths in templates. */
   lineThickness: number;
   margins: Margins;
+  marginPreset: MarginPreset;
+  /** How tracing letters are drawn (dotted/dashed/outline/arrow). */
+  tracingStyle: TracingStyle;
   pages: PageConfig[];
   branding?: {
     kindergartenName?: string;
